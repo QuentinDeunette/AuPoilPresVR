@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scène 2 - Rencontre</title>
+
+  <!-- A-Frame et composants nécessaires -->
+
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-cursor-teleport@1.6.0/dist/aframe-cursor-teleport-component.min.js"></script>
+
+  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+<a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+
+  <!-- Assets -->
+  <a-assets>
+    <img id="sol" src="assets/image/terre-sol.jpg">
+    <img id="sky" src="assets/image/clear-sunny-sky.jpg">
+    <audio id="ambianceScene2" src="assets/sound/ambiance-scene2.mp3"></audio>
+    <audio id="buttonSound" src="assets/sound/button-sound.mp3"></audio>
+    <a-asset-item id="pnjModel" src="assets/3D/viking/scene.gltf"></a-asset-item>
+    <a-asset-item id="tree" src="assets/3D/tree/scene.gltf"></a-asset-item>
+    <a-asset-item id="bush" src="assets/3D/bush/scene.gltf"></a-asset-item>
+    <a-asset-item id="house" src="assets/3D/fantasyhouse/scene.gltf"></a-asset-item>
+  </a-assets>
+
+  <!-- Sol avec navigation-mesh pour téléportation -->
+  <a-plane src="#sol" rotation="-90 0 0" width="150" height="150"
+           class="collision" material="repeat: 100 100" shadow navigation-mesh></a-plane>
+
+  <!-- Ciel -->
+  <a-sky src="#sky"></a-sky>
+
+  <!-- Ambiance sonore -->
+
+  <a-entity id="audioScene2" sound="src: #ambianceScene2; autoplay: false; loop: true; volume: 1.5" position="0 2 -3"></a-entity>
+
+    <a-entity 
+        id="buttonAudio" 
+        sound="src: #buttonSound; autoplay: false; volume: 0.7">
+    </a-entity>
+
+  <!-- PNJ -->
+  <a-entity id="pnjEntity"
+            class="collision"
+            position="0 1 -10"
+            animation="property: scale; dir: alternate; dur: 2000; loop: true; to: 1 1.05 1"
+            >
+<!--look-at="#cameraRig" -->
+    <a-gltf-model src="#pnjModel" scale="1 1 1"></a-gltf-model>
+    <a-box position="0 1 0" width="1" height="2" depth="0" opacity="0" class="clickable" onclick="showPNJDialogue()"></a-box>
+  </a-entity>
+
+  <!-- Maison -->
+  <a-gltf-model src="#house" position="25 0 0" scale="1.2 1.2 1.2" rotation="0 200 0" class="collision"></a-gltf-model>
+
+  <!-- Arbres -->
+  <a-gltf-model src="#tree" position="-8 0 -15" scale="0.2 0.2 0.2" class="collision"></a-gltf-model>
+  <a-gltf-model src="#tree" position="15 0 -40" scale="0.2 0.2 0.2" class="collision"></a-gltf-model>
+  <a-gltf-model src="#tree" position="-15 0 5" scale="0.2 0.2 0.2" class="collision"></a-gltf-model>
+
+  <!-- Buissons -->
+  <a-gltf-model src="#bush" position="-8 0 -9" scale="0.5 0.5 0.5" rotation="0 100 0"></a-gltf-model>
+  <a-gltf-model src="#bush" position="4 0 -9" scale="0.5 0.5 0.5" rotation="0 50 0"></a-gltf-model>
+  <a-gltf-model src="#bush" position="0 0 -3" scale="0.2 0.2 0.2" rotation="0 100 0"></a-gltf-model>
+
+  <!-- Caméra avec téléportation -->
+
+  <a-entity id="cameraRig" cursor-teleport="cameraRig: #cameraRig; cameraHead: #head; collisionEntities: .collision">
+    <a-entity id="head" camera look-controls position="0 1.6 0">
+
+      <!-- HUD dialogue -->
+      <a-entity id="dialogueBox" position="0 0 -0.8" visible="false">
+        <a-plane width="1.4" height="0.6" color="#000" opacity="0.7" material="shader: flat; depthTest: false"></a-plane>
+        <a-text id="dialogueText" value="" color="#fffacd" position="0 0.15 0" align="center" width="1.2"></a-text>
+        <a-plane id="btnOui" position="-0.4 -0.15 0" width="0.4" height="0.15" color="#4CAF50"
+                 text="value: Oui; align: center; color: white; width: 1.5"
+                 onclick="playButtonSound(); onDialogueChoice('yes')"></a-plane>
+        <a-plane id="btnNon" position="0.4 -0.15 0" width="0.4" height="0.15" color="#F44336"
+                 text="value: Non; align: center; color: white; width: 1.5"
+                 onclick="playButtonSound(); onDialogueChoice('no')"></a-plane>
+      </a-entity>
+
+      <!-- HUD navigation -->
+
+      <a-entity id="hud" position="0 0 -1.2">
+        <a-plane class="clickable" position="1.2 -0.8 0" width="0.3" height="0.1" color="#4cc3d9"
+                 text="value: Quitter; align: center; color: black; width: 1.5"
+                 onclick="playButtonSound(); goToScene('choix-niveaux.html')"></a-plane>
+        <a-plane class="clickable" position="1.6 -0.8 0" width="0.3" height="0.1" color="#4cc3d9"
+                 text="value: Suivant; align: center; color: black; width: 1.5"
+                 onclick="playButtonSound(); goToScene('scene3.html')"></a-plane>
+      </a-entity>
+
+    </a-entity>
+  </a-entity>
+
+    <!-- Instruction temporaire -->
+
+    <a-text id="instruction"
+            value="Approche toi doucement du barbus, a ton allure, et interagit avec lui..."
+            position="0 2.8 -4"
+            align="center"
+            color="white"
+            width="6">
+    </a-text>
+
+  <!-- Lumière -->
+  <a-entity light="type: ambient; intensity: 1.2"></a-entity>
+</a-scene>
+
+<script>
+
+    setTimeout(() => {
+    const instruction = document.getElementById("instruction");
+    if (instruction) instruction.setAttribute("visible", false);
+    }, 15000);
+
+    function setTeleportEnabled(enabled) {
+    const cameraRig = document.querySelector("#cameraRig");
+    if (!cameraRig) return;
+    if (enabled) {
+        cameraRig.setAttribute("cursor-teleport", "enabled: true");
+    } else {
+        cameraRig.setAttribute("cursor-teleport", "enabled: false");
+    }
+    }
+
+  function playButtonSound() {
+    const sound = document.querySelector("#buttonAudio");
+    if (sound && sound.components.sound) sound.components.sound.playSound();
+  }
+
+  function goToScene(scene) {
+    setTimeout(() => window.location.href = scene, 300);
+  }
+
+  let ambianceLancee = false;
+  function tryPlayAmbiance() {
+    const audio = document.querySelector("#audioScene2");
+    if (!ambianceLancee && audio && audio.components.sound) {
+      audio.components.sound.playSound();
+      ambianceLancee = true;
+    }
+  }
+  window.addEventListener("click", tryPlayAmbiance);
+
+    function showPNJDialogue() {
+    const box = document.getElementById("dialogueBox");
+    const text = document.getElementById("dialogueText");
+    box.setAttribute("visible", true);
+    setTeleportEnabled(false);
+
+    const btnOui = document.getElementById("btnOui");
+    const btnNon = document.getElementById("btnNon");
+    btnOui.setAttribute("visible", true);
+    btnOui.classList.add("clickable");
+    btnNon.setAttribute("visible", true);
+    btnNon.classList.add("clickable");
+
+    const nom = localStorage.getItem("nom") || "Utilisateur";
+    const prenom = localStorage.getItem("prenom") || "";
+    document.getElementById("dialogueText").setAttribute(
+        "value", `Bonjour ${prenom} ${nom} ! 
+        Il me semble que dans le village, une fete se prepare. Souhaitez-vous y continuer votre aventure?`);
+    }
+
+    function onDialogueChoice(choice) {
+        const box = document.getElementById("dialogueBox");
+        const text = document.getElementById("dialogueText");
+
+        const btnOui = document.getElementById("btnOui");
+        const btnNon = document.getElementById("btnNon");
+
+        if (choice === 'yes') {
+            playButtonSound();
+            goToScene('scene3.html');
+        } else {
+            btnOui.setAttribute("visible", false);
+            btnOui.classList.remove("clickable");
+            btnNon.setAttribute("visible", false);
+            btnNon.classList.remove("clickable");
+
+            text.setAttribute("value", "Ok, prenez votre temps, revenez me voir quand vous serez pret(e).");
+
+            setTimeout(() => {
+                box.setAttribute("visible", false);
+                setTeleportEnabled(true);
+                }, 4000);
+        }
+    }
+</script>
+</body>
+</html>

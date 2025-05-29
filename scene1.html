@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scène 1 - Clairière</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+
+    <a-assets>
+      <img id="sky360" src="assets/image/clairiere.jpeg">
+      
+      <audio id="ambianceScene1" src="assets/sound/ambiance-scene1.mp3"></audio>
+      <audio id="buttonSound" src="assets/sound/button-sound.mp3"></audio>
+      <a-asset-item id="barbu" src="assets/3D/viking/scene.gltf"></a-asset-item>
+    </a-assets>
+
+    <a-sky src="#sky360" rotation="0 -90 0"></a-sky>
+
+    <a-entity id="audioScene1" sound="src: #ambianceScene1; autoplay: false; loop: true; volume: 3" position="0 2 -3"></a-entity>
+    <a-entity id="buttonAudio" sound="src: #buttonSound; autoplay: false; volume: 0.7"></a-entity>
+
+    <!-- PNJ : Viking -->
+    <a-entity position="0 0 -25" rotation="0 0 0">
+    <a-gltf-model src="#barbu" scale="3 3 3"></a-gltf-model>
+    </a-entity>
+
+    <!-- Instruction temporaire -->
+
+    <a-text id="instruction"
+            value="Regardez calmement l'individu barbu en face de vous..."
+            position="0 2.8 -4"
+            align="center"
+            color="black"
+            width="6">
+    </a-text>
+
+    <a-plane class="clickable" position="4 -1 -4" width="0.9" height="0.35" color="#4cc3d9"
+             text="value: Quitter; align: center; width: 5; color: black"
+             onclick="playButtonSound(); goToScene('choix-niveaux.html')"></a-plane>
+
+    <a-plane class="clickable" position="5.3 -1 -4" width="0.9" height="0.35" color="#4cc3d9"
+             text="value: Suivant; align: center; width: 5; color: black"
+             onclick="playButtonSound(); goToScene('scene2.html')"></a-plane>
+
+    <a-entity light="type: ambient; intensity: 1"></a-entity>
+
+  </a-scene>
+
+  <script>
+// Masquer l'instruction après 10 secondes
+setTimeout(() => {
+  const instruction = document.getElementById("instruction");
+  if (instruction) instruction.setAttribute("visible", false);
+}, 15000);
+
+function playButtonSound() {
+        const sound = document.querySelector("#buttonAudio");
+        if (sound && sound.components.sound) {
+            sound.components.sound.playSound();
+        }
+    }
+
+function goToScene(scene) {
+  setTimeout(() => {
+    window.location.href = scene;
+  }, 300);
+}
+
+let ambianceLancee = false;
+
+function tryPlayAmbiance() {
+  const audio = document.querySelector("#audioScene1");
+
+  if (!ambianceLancee && audio && audio.components.sound) {
+    audio.components.sound.playSound();
+    ambianceLancee = true;
+  }
+}
+
+window.addEventListener("click", tryPlayAmbiance);
+
+  </script>
+</body>
+</html>

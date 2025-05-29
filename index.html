@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Accueil - Au poil près</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background-color: black;
+      }
+
+      .ui-overlay {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        z-index: 2;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      input,
+      button {
+        padding: 10px;
+        font-size: 16px;
+        margin: 5px;
+        border-radius: 5px;
+        border: none;
+      }
+
+      button {
+        background-color: #4cc3d9;
+        color: white;
+        cursor: pointer;
+      }
+
+      #greeting,
+      #instruction {
+        margin-top: 15px;
+        font-size: 20px;
+        color: #f0e68c;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Formulaire -->
+    <div class="ui-overlay" id="form-container">
+      <h1>Bienvenue dans "Au poil près"</h1>
+      <input type="text" id="prenom" placeholder="Prénom" />
+      <input type="text" id="nom" placeholder="Nom" /><br />
+      <button id="valider">Valider</button>
+    </div>
+
+    <!-- Scène A-Frame -->
+    <a-scene>
+      <a-assets>
+        <img id="fondAccueil" src="assets/image/intro.jpeg"/>
+        <audio id="musiqueIntro" src="assets/sound/musique_intro.mp3"></audio>
+        <audio id="buttonSound" src="assets/sound/button-sound.mp3"></audio>
+      </a-assets>
+
+      <a-sky id="sky" src="#fondAccueil"></a-sky>
+
+      <a-entity id="audioIntro" sound="src: #musiqueIntro; autoplay: false; loop: true; volume: 0.5"></a-entity>
+      <a-entity id="buttonAudio" sound="src: #buttonSound; autoplay: false; volume: 0.7"></a-entity>
+
+    </a-scene>
+
+    <script>
+      const validerBtn = document.getElementById("valider");
+      const nomInput = document.getElementById("nom");
+      const prenomInput = document.getElementById("prenom");
+      const sky = document.getElementById("sky");
+      let musiqueLancee = false;
+
+function lancerMusique() {
+  if (!musiqueLancee) {
+    const audioEl = document.querySelector("#audioIntro");
+    if (audioEl && audioEl.components.sound) {
+      audioEl.components.sound.playSound();
+      musiqueLancee = true;
+    }
+  }
+}
+
+function playButtonSound() {
+  const sound = document.querySelector("#buttonAudio");
+  if (sound && sound.components.sound) {
+    sound.components.sound.playSound();
+  }
+}
+
+window.addEventListener("click", () => {
+  lancerMusique();
+});
+
+      validerBtn.addEventListener("click", () => {
+        const nom = nomInput.value.trim();
+        const prenom = prenomInput.value.trim();
+
+        playButtonSound();
+
+        if (nom && prenom) {
+          localStorage.setItem("nom", nom);
+          localStorage.setItem("prenom", prenom);
+          playButtonSound;
+          setTimeout(() => {
+            window.location.href = "choix-niveaux.html";
+          }, 300);
+        } else {
+          alert("Veuillez remplir à la fois votre prénom et votre nom.");
+        }
+      });
+
+      function fermerPage() {
+        document.querySelector("a-scene").style.display = "none";
+        document.getElementById("form-container").classList.add("hidden");
+
+        document.body.style.backgroundColor = "black";
+        document.body.innerHTML = `
+          <h1 style="color: white; text-align: center; margin-top: 20%;">
+            Fin de l'expérience<br><br>Vous pouvez maintenant fermer la fenêtre.
+          </h1>
+        `;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scène 3 - Village</title>
+
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  
+  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+<a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+  <a-assets>
+    <audio id="ambianceScene3" src="assets/sound/ambiance-scene3.mp3"></audio>
+    <audio id="buttonSound" src="assets/sound/button-sound.mp3"></audio>
+
+    <a-asset-item id="villageModel" src="assets/3D/village/scene.gltf"></a-asset-item>
+    <a-asset-item id="pnjModel1" src="assets/3D/fantasycharacter/scene.gltf"></a-asset-item>
+    <a-asset-item id="pnjModel2" src="assets/3D/villageois/scene.gltf"></a-asset-item>
+    <a-asset-item id="pnjModel3" src="assets/3D/warrior/scene.gltf"></a-asset-item>
+    <a-asset-item id="pnjModel4" src="assets/3D/dwarf/scene.gltf"></a-asset-item>
+    <a-asset-item id="pnjModel5" src="assets/3D/personnage/scene.gltf"></a-asset-item>
+
+  </a-assets>
+
+  <!-- Modèle 3D du village -->
+  <a-gltf-model src="#villageModel" position="0 0 0" scale="0.0005 0.0005 0.0005"></a-gltf-model>
+
+  <!-- Ambiance sonore -->
+  <a-entity id="audioScene3" sound="src: #ambianceScene3; autoplay: false; loop: true; volume: 0.5"></a-entity>
+  <a-entity id="buttonAudio" sound="src: #buttonSound; autoplay: false; volume: 0.7"></a-entity>
+
+    <!-- PNJ positionnés autour du joueur -->
+    <a-entity id="pnjs">
+
+    <!-- PNJ 1 -->
+    <a-entity position="0 0 -2"  rotation="0 -90 0">
+        <a-gltf-model src="#pnjModel1" scale="2 2 2"></a-gltf-model>
+        <a-box position="0 1 0" width="1" height="2" depth="1"
+            opacity="0" class="clickable"
+            onclick="showSimpleMessage('Bienvenue dans le village !')"></a-box>
+    </a-entity>
+
+    <!-- PNJ 2 -->
+    <a-entity position="2 0.8 1" look-at="#cameraRig">
+        <a-gltf-model src="#pnjModel2" scale="1 1 1"></a-gltf-model>
+        <a-box position="0 1 0" width="2" height="3" depth="1"
+            opacity="0" class="clickable"
+            onclick="showSimpleMessage('Il y a de la fete en ville aujourd’hui !')"></a-box>
+    </a-entity>
+
+    <!-- PNJ 3 -->
+    <a-entity position="0 0 2" rotation="0 90 0">
+        <a-gltf-model src="#pnjModel3" scale="2 2 2"></a-gltf-model>
+        <a-box position="0 1 0" width="1" height="2" depth="1"
+            opacity="0" class="clickable"
+            onclick="showSimpleMessage('Prenez garde aux voleurs de pommes !')"></a-box>
+    </a-entity>
+
+    <!-- PNJ 4 -->
+    <a-entity position="-2 0 0" look-at="#cameraRig">
+        <a-gltf-model src="#pnjModel5" scale="1 1 1"></a-gltf-model>
+        <a-box position="0 1 0" width="1" height="2" depth="1"
+            opacity="0" class="clickable"
+            onclick="showSimpleMessage('J’ai vu un dragon plus loin...')"></a-box>
+    </a-entity>
+
+    <!-- PNJ 5 (dialogue vers scène suivante) -->
+    <a-entity position="1.7 0.5 -1.7" look-at="#cameraRig">
+        <a-gltf-model src="#pnjModel4" scale="80 80 80"></a-gltf-model>
+        <a-box position="0 1 0" width="1" height="1" depth="0"
+            opacity="0" class="clickable"
+            onclick="showPNJDialogue()"></a-box>
+    </a-entity>
+
+    </a-entity>
+
+    <!-- Caméra sans mouvement -->
+    <a-entity id="cameraRig" position="0 0 0">
+    <a-entity camera look-controls position="0 1.6 0">
+
+        <!-- HUD pour simple message -->
+        <a-entity id="messageBox" position="0 0 -1.2" visible="false">
+        <a-plane width="1.6" height="0.4" color="#000" opacity="0.7"></a-plane>
+        <a-text id="messageText" value="" color="#fffacd" position="0 0 0" align="center" width="1.4"></a-text>
+        </a-entity>
+
+        <!-- HUD pour dialogue avec choix -->
+        <a-entity id="dialogueBox" position="0 0 -1.2" visible="false">
+        <a-plane width="1.6" height="0.6" color="#000" opacity="0.7"></a-plane>
+        <a-text id="dialogueText" value="" color="#fffacd" position="0 0.15 0" align="center" width="1.4"></a-text>
+        <a-plane id="btnOui" position="-0.5 -0.15 0" width="0.4" height="0.1" color="#4CAF50"
+                visible="false"
+                text="value: Oui; align: center; color: white; width:1.5"
+                onclick="playButtonSound(); goToScene('choix-niveaux.html')"></a-plane>
+        <a-plane id="btnNon" position="0.5 -0.15 0" width="0.4" height="0.1" color="#F44336"
+                visible="false"
+                text="value: Non; align: center; color: white; width:1.5"
+                onclick="playButtonSound(); dismissDialogue()"></a-plane>
+        </a-entity>
+
+        <!-- HUD navigation -->
+        <a-entity id="hud" position="0 0 -1.2" render-order="hud">
+        <a-plane class="clickable" position="1.6 -0.8 0" width="0.3" height="0.1" color="#4cc3d9" material="shader: flat; depthTest: false"
+                text="value: Quitter; align: center; color: black; width: 1.5"
+                onclick="playButtonSound(); goToScene('choix-niveaux.html')"></a-plane>
+        </a-entity>
+
+    </a-entity>
+    </a-entity>
+
+    <!-- Instruction temporaire -->
+    <a-text id="instruction"
+            value="Prends ton temps, interagit avec tous les barbus en cliquant sur leur visage, l'un d'entre eux te permet de partir de la fete."
+            position="0 3.8 -4"
+            align="center"
+            color="white"
+            width="6">
+    </a-text>
+
+  <!-- Lumière -->
+
+  <a-entity light="type: ambient; intensity: 1.2"></a-entity>
+
+</a-scene>
+
+<script>
+  setTimeout(() => {
+    const instruction = document.getElementById("instruction");
+    if (instruction) instruction.setAttribute("visible", false);
+  }, 15000);
+  
+  function playButtonSound() {
+    const sound = document.querySelector("#buttonAudio");
+    if (sound && sound.components.sound) sound.components.sound.playSound();
+  }
+
+  function goToScene(scene) {
+    setTimeout(() => window.location.href = scene, 300);
+  }
+
+  function tryPlayAmbiance() {
+    const audio = document.querySelector("#audioScene3");
+    if (audio && audio.components.sound && !audio.playedOnce) {
+      audio.components.sound.playSound();
+      audio.playedOnce = true;
+    }
+  }
+  window.addEventListener("click", tryPlayAmbiance);
+
+  function showSimpleMessage(message) {
+    const box = document.querySelector("#messageBox");
+    const text = document.querySelector("#messageText");
+    document.querySelector("#dialogueBox").setAttribute("visible", false);
+
+    text.setAttribute("value", message);
+    box.setAttribute("visible", true);
+    setTimeout(() => {
+      box.setAttribute("visible", false);
+    }, 4000);
+  }
+
+  function showPNJDialogue() {
+    const box = document.querySelector("#dialogueBox");
+    const text = document.querySelector("#dialogueText");
+
+    // Cacher l'autre boîte si visible
+    document.querySelector("#messageBox").setAttribute("visible", false);
+
+    text.setAttribute("value", "Souhaitez-vous en terminer pour aujourd'hui ?");
+    box.setAttribute("visible", true);
+
+    // Activer les boutons Oui / Non uniquement ici
+    const btnOui = document.querySelector("#btnOui");
+    const btnNon = document.querySelector("#btnNon");
+    btnOui.setAttribute("visible", true);
+    btnNon.setAttribute("visible", true);
+    btnOui.classList.add("clickable");
+    btnNon.classList.add("clickable");
+  }
+
+  function dismissDialogue() {
+    const text = document.querySelector("#dialogueText");
+    const box = document.querySelector("#dialogueBox");
+
+    text.setAttribute("value", "Entendu. Revenez me voir lorsque vous voulez partir.");
+
+    // Masquer les boutons et retirer l'interaction
+    const btnOui = document.querySelector("#btnOui");
+    const btnNon = document.querySelector("#btnNon");
+    btnOui.setAttribute("visible", false);
+    btnOui.classList.remove("clickable");
+    btnNon.setAttribute("visible", false);
+    btnNon.classList.remove("clickable");
+
+    setTimeout(() => {
+      box.setAttribute("visible", false);
+
+      // Réactiver pour la prochaine interaction si besoin
+      btnOui.setAttribute("visible", true);
+      btnOui.classList.add("clickable");
+      btnNon.setAttribute("visible", true);
+      btnNon.classList.add("clickable");
+    }, 4000);
+  }
+</script>
+
+
+</body>
+</html>

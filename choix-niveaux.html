@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Choix des niveaux – Au poil près</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+    <a-assets>
+      <img id="fond360" src="assets/image/fond-choix.jpeg" />
+      <audio id="musiqueChoix" src="assets/sound/ambiance-choix.mp3"></audio>
+      <audio id="buttonSound" src="assets/sound/button-sound.mp3"></audio>
+    </a-assets>
+
+    <a-sky src="#fond360" rotation="0 -90 0"></a-sky>
+
+    <a-entity id="audioSource" sound="src: #musiqueChoix; autoplay: false; loop: true; volume: 0.5;" position="0 2 -3"></a-entity>
+    <a-entity id="buttonAudio" sound="src: #buttonSound; autoplay: false; volume: 0.7"></a-entity>
+
+    <a-text id="nomUtilisateur"
+            value="Chargement..."
+            position="0 3.2 -4"
+            align="center"
+            color="#fffacd"
+            width="6"
+            height="1"></a-text>
+
+    <a-entity id="menu-niveaux" position="0 1.5 -4">
+      <a-plane class="clickable" position="0 1.2 0" width="2.5" height="0.6" color="#4cc3d9"
+               text="value: Niveau 1; align: center; width: 4"
+               onclick="playButtonSound(); goToScene('scene1.html')"></a-plane>
+
+      <a-plane class="clickable" position="0 0.5 0" width="2.5" height="0.6" color="#4cc3d9"
+               text="value: Niveau 2; align: center; width: 4"
+               onclick="playButtonSound(); goToScene('scene2.html')"></a-plane>
+
+      <a-plane class="clickable" position="0 -0.2 0" width="2.5" height="0.6" color="#4cc3d9"
+               text="value: Niveau 3; align: center; width: 4"
+               onclick="playButtonSound(); goToScene('scene3.html')"></a-plane>
+    </a-entity>
+
+    <a-plane class="clickable" position="0 -1 -4" width="4" height="0.6" color="#d94c4c"
+             text="value: Quitter l'expérience; align: center; color: white; width: 6"
+             onclick="playButtonSound(); goToScene('index.html')"></a-plane>
+  </a-scene>
+
+  <script>
+    function tryPlayAudio() {
+      const audio = document.querySelector("#audioSource");
+      if (audio && audio.components.sound && !audio.components.sound.isPlaying) {
+        audio.components.sound.playSound();
+      }
+    }
+
+    function playButtonSound() {
+      const sound = document.querySelector("#buttonAudio");
+      if (sound && sound.components.sound) {
+        sound.components.sound.playSound();
+      }
+    }
+
+    function goToScene(scene) {
+      setTimeout(() => window.location.href = scene, 300);
+    }
+
+    window.addEventListener("click", tryPlayAudio);
+    window.addEventListener("load", tryPlayAudio);
+
+    const nom = localStorage.getItem("nom") || "Utilisateur";
+    const prenom = localStorage.getItem("prenom") || "";
+    document.getElementById("nomUtilisateur").setAttribute("value", `Bienvenue ${prenom} ${nom}`);
+  </script>
+</body>
+</html>
